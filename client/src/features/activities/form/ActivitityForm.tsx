@@ -1,13 +1,12 @@
 import { Box, Button, Paper, TextField, Typography } from "@mui/material";
 import { useActivities } from "../../../lib/hooks/useActivities";
+import { useNavigate, useParams } from "react-router";
 
-type Props = {
-  activity?: Activity;
-  closeForm: () => void;
-};
-
-export default function ActivityForm({ closeForm, activity }: Props) {
-  const { updateActivity, createActivity } = useActivities();
+export default function ActivityForm() {
+  const { id } = useParams();
+  const { updateActivity, createActivity, activity, isLoadingActivity } =
+    useActivities(id);
+  const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -21,19 +20,23 @@ export default function ActivityForm({ closeForm, activity }: Props) {
 
     if (activity) {
       data.id = activity.id;
-      await updateActivity.mutateAsync(data as unknown as Activity)
-      closeForm()
+      await updateActivity.mutateAsync(data as unknown as Activity);
+      navigate(`/activities/${activity.id}`);
     } else {
-      await createActivity.mutateAsync(data as unknown as Activity)
-      closeForm()
+      createActivity.mutate(data as unknown as Activity, {
+        onSuccess: (id) => {
+          navigate(`/activities/${id}`);
+        },
+      });
     }
-
   };
+
+  if (isLoadingActivity) return <Typography>Loading activity...</Typography>;
 
   return (
     <Paper sx={{ borderRadius: 3, padding: 3 }}>
       <Typography variant="h5" gutterBottom color="primary">
-        Create activity
+        {activity ? "Edit activity" : "Create activity"}
       </Typography>
       <Box
         component="form"
@@ -62,7 +65,7 @@ export default function ActivityForm({ closeForm, activity }: Props) {
           defaultValue={
             activity?.date
               ? new Date(activity.date).toISOString().split("T")[0]
-              : new Date().toISOString().split('T')[0]
+              : new Date().toISOString().split("T")[0]
           }
           label="Date"
           type="date"
@@ -78,10 +81,13 @@ export default function ActivityForm({ closeForm, activity }: Props) {
           label="Venue"
         />
         <Box sx={{ display: "flex", justifyContent: "end", gap: 3 }}>
-          <Button onClick={closeForm} color="inherit">
-            Cancel
-          </Button>
-          <Button type="submit" color="success" variant="contained" loading={updateActivity.isPending || createActivity.isPending}>
+          <Button color="inherit">Cancel</Button>
+          <Button
+            type="submit"
+            color="success"
+            variant="contained"
+            loading={updateActivity.isPending || createActivity.isPending}
+          >
             Submit
           </Button>
         </Box>
