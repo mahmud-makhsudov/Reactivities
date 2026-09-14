@@ -36,7 +36,7 @@ export default function ActivityDetails() {
         >
           Edit
         </Button>
-        <Button component={Link} to="/activities" color="inherit">
+        <Button component={Link} to={`/manage/${activity.id}`} color="inherit">
           Cancel
         </Button>
       </CardActions>
