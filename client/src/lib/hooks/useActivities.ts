@@ -1,28 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router"
+import { useAccount } from "./useAccount"
 
 export const useActivities = (id?: string) => {
     const queryClient = useQueryClient();
+    const {currentUser} = useAccount();
     const location = useLocation()
 
-    const { isPending, data: activities } = useQuery({
+    const { isLoading, data: activities } = useQuery({
         queryKey: ['activities'],
         queryFn: async () => {
             const response = await agent.get<Activity[]>('/activities');
             return response.data;
         },
-        enabled: !id && location.pathname === '/activities'
+        enabled: !id && location.pathname === '/activities' && !!currentUser
     });
 
-    const { isLoading: isLoadingActivity, data: activity } = useQuery<Activity>({
-        queryKey: ['activities', id],
+    const { isLoading: isLoadingActivity, data: activity } = useQuery<Activity>(
+      {
+        queryKey: ["activities", id],
         queryFn: async () => {
-            const response = await agent.get<Activity>(`/activities/${id}`);
-            return response.data;
+          const response = await agent.get<Activity>(`/activities/${id}`);
+          return response.data;
         },
-        enabled: !!id
-    });
+        enabled: !!id && !!currentUser
+      },
+    );
 
     const updateActivity = useMutation({
         mutationFn: async (activity: Activity) => {
@@ -60,7 +64,7 @@ export const useActivities = (id?: string) => {
 
     return {
         activities,
-        isPending,
+        isLoading,
         updateActivity,
         createActivity,
         deleteActivity,
