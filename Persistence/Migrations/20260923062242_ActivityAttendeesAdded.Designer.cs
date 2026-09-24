@@ -11,7 +11,7 @@ using Persistence;
 namespace Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260915172023_ActivityAttendeesAdded")]
+    [Migration("20260923062242_ActivityAttendeesAdded")]
     partial class ActivityAttendeesAdded
     {
         /// <inheritdoc />
@@ -40,7 +40,7 @@ namespace Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<bool>("IsCanceled")
+                    b.Property<bool>("IsCancelled")
                         .HasColumnType("INTEGER");
 
                     b.Property<double>("Latitude")

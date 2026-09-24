@@ -13,7 +13,7 @@ namespace Application.Activities.DTOs
         public DateTime Date { get; set; }
         public required string Description { get; set; }
         public required string Category { get; set; }
-        public bool IsCanceled { get; set; }
+        public bool IsCancelled { get; set; }
         public required string HostDisplayName { get; set; }
         public required string HostId { get; set; }
 

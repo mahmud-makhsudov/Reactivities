@@ -36,7 +36,7 @@ namespace Application.Activities.Commands
 
                 if (attendance != null)
                 {
-                    if (isHost) activity.IsCanceled = !activity.IsCanceled;
+                    if (isHost) activity.IsCancelled = !activity.IsCancelled;
                     else activity.Attendees.Remove(attendance);
                 }
                 else
