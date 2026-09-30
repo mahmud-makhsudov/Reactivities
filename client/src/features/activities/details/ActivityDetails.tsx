@@ -25,7 +25,9 @@ export default function ActivityDetails() {
       />
       <CardContent>
         <Typography variant="h5">{activity.title}</Typography>
-        <Typography variant="subtitle1">{activity.date}</Typography>
+        <Typography variant="subtitle1">
+          {activity.date.toLocaleDateString()}
+        </Typography>
         <Typography variant="body1">{activity.description}</Typography>
       </CardContent>
       <CardActions>
