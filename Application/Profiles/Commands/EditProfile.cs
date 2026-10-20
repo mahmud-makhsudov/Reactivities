@@ -1,40 +1,38 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Application.Core;
 using Application.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
-namespace Application.Profiles.Commands
+namespace Application.Profiles.Commands;
+
+public class EditProfile
 {
-    public class EditProfile
+    public class Command : IRequest<Result<Unit>>
     {
-        public class Command : IRequest<Result<Unit>>
+        public string DisplayName { get; set; } = string.Empty;
+        public string Bio { get; set; } = string.Empty;
+    }
+
+    public class Handler(AppDbContext context, IUserAccessor userAccessor) 
+	    : IRequestHandler<Command, Result<Unit>>
+    {
+        public async Task<Result<Unit>> Handle(Command request, 
+	        CancellationToken cancellationToken)
         {
-            public required string DisplayName { get; set; }
-            public string? Bio { get; set; }
-        }
+            var user = await userAccessor.GetUserAsync();
 
-        public class Handler(IUserAccessor userAccessor, AppDbContext context) : IRequestHandler<Command, Result<Unit>>
-        {
-            public async Task<Result<Unit>> Handle(Command request, CancellationToken cancellationToken)
-            {
-                var user = await userAccessor.GetUserAsync();
+            user.DisplayName = request.DisplayName;
+            user.Bio = request.Bio;
 
-                if (user.DisplayName == request.DisplayName && user.Bio == request.Bio)
-                    return Result<Unit>.Failure("No changes were made to the profile", 400);
+            context.Entry(user).State = EntityState.Modified;
 
-                user.DisplayName = request.DisplayName;
-                if (request.Bio != null) user.Bio = request.Bio;
+            var result = await context.SaveChangesAsync(cancellationToken) > 0;
 
-                var result = await context.SaveChangesAsync(cancellationToken) > 0;
-
-                return result
-                    ? Result<Unit>.Success(Unit.Value)
-                    : Result<Unit>.Failure("Problem updating profile", 400);
-            }
+            return result
+                ? Result<Unit>.Success(Unit.Value)
+                : Result<Unit>.Failure("Failed to update profile", 400);
         }
     }
 }

@@ -1,35 +1,31 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain;
 using Microsoft.AspNetCore.Identity;
 
-namespace Persistence
+namespace Persistence;
+
+public class DbInitializer
 {
-    public class DbInitializer
+    public static async Task SeedData(AppDbContext context, UserManager<User> userManager)
     {
-        public static async Task SeedData(AppDbContext context, UserManager<User> userManager)
-        {
-            var users = new List<User>
-            {
-                new() {Id = "bob-id", DisplayName = "Bob", UserName = "bob@test.com", Email = "bob@test.com"},
-                new() {Id = "tom-id", DisplayName = "Tom", UserName = "tom@test.com", Email = "tom@test.com"},
-                new() {Id = "jane-id", DisplayName = "Jane", UserName = "jane@test.com", Email = "jane@test.com"}
-            };
-
-            if (!userManager.Users.Any())
-            {
-
-                foreach (var user in users)
+        var users = new List<User>
                 {
-                    await userManager.CreateAsync(user, "Pa$$w0rd");
-                }
+                    new() {Id = "bob-id", DisplayName = "Bob", UserName = "bob@test.com", Email = "bob@test.com"},
+                    new() {Id = "tom-id", DisplayName = "Tom", UserName = "tom@test.com", Email = "tom@test.com"},
+                    new() {Id = "jane-id", DisplayName = "Jane", UserName = "jane@test.com", Email = "jane@test.com"}
+                };
+
+        if (!userManager.Users.Any())
+        {
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user, "Pa$$w0rd");
             }
+        }
 
-            if (context.Activities.Any()) return;
+        if (context.Activities.Any()) return;
 
-            var activities = new List<Activity>
+        var activities = new List<Activity>
         {
             new()
             {
@@ -216,7 +212,7 @@ namespace Persistence
             {
                 Title = "Future Activity 7",
                 Date = DateTime.Now.AddMonths(7),
-                Description = "Activity 7 months in future",
+                Description = "Activity 2 months ago",
                 Category = "travel",
                 City = "London",
                 Venue = "River Thames, England, United Kingdom",
@@ -256,9 +252,8 @@ namespace Persistence
             }
         };
 
-            context.Activities.AddRange(activities);
+        context.Activities.AddRange(activities);
 
-            await context.SaveChangesAsync();
-        }
+        await context.SaveChangesAsync();
     }
 }

@@ -1,18 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Application.Activities.DTOs
+namespace Application.Activities.DTOs;
+
+public class CommentDto
 {
-    public class CommentDto
-    {
-        public required string Id { get; set; }
-        public required string Body { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public required string UserId { get; set; }
-        public required string DisplayName { get; set; }
-        public string? ImageUrl { get; set; }
-
-    }
+    public required string Id { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public required string Body { get; set; }
+    public required string UserId { get; set; }
+    public required string DisplayName { get; set; }
+    public string? ImageUrl { get; set; }
 }
