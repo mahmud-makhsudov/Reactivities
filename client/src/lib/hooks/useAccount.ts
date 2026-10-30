@@ -4,10 +4,22 @@ import type { LoginSchema } from "../schemas/loginSchema.ts";
 import { useNavigate } from "react-router";
 import type { RegisterSchema } from "../schemas/registerSchema.ts";
 import { toast } from "react-toastify";
+import type { ChangePasswordSchema } from "../schemas/changePasswordShema.ts";
 
 export const useAccount = () => {
     const queryClient = useQueryClient();
     const navigate = useNavigate();
+
+
+    const { data: currentUser,isLoading: loadingUserInfo } = useQuery({
+        queryKey: ['user'],
+        queryFn: async () => {
+            const response = await agent.get<User>('/account/user-info');
+            return response.data
+        },
+        enabled: !queryClient.getQueryData(['user'])
+    });
+    
 
     const loginUser = useMutation({
         mutationFn: async (creds: LoginSchema) => {
@@ -58,15 +70,24 @@ export const useAccount = () => {
         }
     })
 
-    const { data: currentUser,isLoading: loadingUserInfo } = useQuery({
-        queryKey: ['user'],
-        queryFn: async () => {
-            const response = await agent.get<User>('/account/user-info');
-            return response.data
-        },
-        enabled: !queryClient.getQueryData(['user'])
-    });
-    
+    const changePassword = useMutation({
+        mutationFn: async (data: ChangePasswordSchema) => {
+            await agent.post('/account/change-password', data)
+        }
+    })
+
+    const forgotPassword = useMutation({
+        mutationFn: async (email: string) => {
+            await agent.post('/forgotPassword', {email})
+        }
+    })
+
+    const resetPassword = useMutation({
+        mutationFn: async (data: ResetPassword) => {
+            await agent.post('/resetPassword', data)
+        }
+    })
+
     return {
         loginUser,
         currentUser,
@@ -74,6 +95,9 @@ export const useAccount = () => {
         loadingUserInfo,
         registerUser,
         verifyEmail,
-        resendConfirmationEmail
+        resendConfirmationEmail,
+        changePassword,
+        forgotPassword,
+        resetPassword
     }
 }
